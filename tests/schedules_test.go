@@ -4,5 +4,5 @@ import (
 	"testing"
 )
 
-func TestForms(t *testing.T) {
+func TestSchedules(t *testing.T) {
 }
