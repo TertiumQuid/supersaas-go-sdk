@@ -1,7 +1,14 @@
 package supersaas
 
+import (
+	"fmt"
+	"time"
+)
+
 // Forms ...
-type Forms API
+type Forms struct {
+	API
+}
 
 // Form model ...
 type Form struct {
@@ -15,4 +22,27 @@ type Form struct {
 	UpdatedName          string        `json:"updated_name"`
 	UpdatedOn            string        `json:"updated_on"`
 	UserID               int64         `json:"user_id"`
+
+	Errors []interface{} `json:"errors"`
+}
+
+// List returns forms for a given form template
+func (f Forms) List(formID int, fromTime time.Time) ([]Form, error) {
+	var forms []Form
+	path := "/forms"
+	q := map[string]interface{}{"form_id": fmt.Sprint(formID)}
+	if !fromTime.IsZero() {
+		q["from"] = f.FormatTime(fromTime)
+	}
+	err := f.client.Get(path, q, &forms)
+	return forms, err
+}
+
+// Get returns a form by id
+func (f Forms) Get(formID int) (Form, error) {
+	form := Form{}
+	path := "/forms/" + fmt.Sprint(formID)
+	q := map[string]interface{}{"id": fmt.Sprint(formID)}
+	err := f.client.Get(path, q, &form)
+	return form, err
 }
