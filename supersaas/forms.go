@@ -12,6 +12,7 @@ type Forms struct {
 
 // Form model ...
 type Form struct {
+	Model
 	Content              []interface{} `json:"content"`
 	CreatedOn            string        `json:"created_on"`
 	Deleted              bool          `json:"deleted"`
@@ -22,8 +23,6 @@ type Form struct {
 	UpdatedName          string        `json:"updated_name"`
 	UpdatedOn            string        `json:"updated_on"`
 	UserID               int64         `json:"user_id"`
-
-	Errors []interface{} `json:"errors"`
 }
 
 // List returns forms for a given form template
@@ -34,7 +33,7 @@ func (f Forms) List(formID int, fromTime time.Time) ([]Form, error) {
 	if !fromTime.IsZero() {
 		q["from"] = f.FormatTime(fromTime)
 	}
-	err := f.client.Get(path, q, &forms)
+	err := f.Client.Get(path, q, &forms)
 	return forms, err
 }
 
@@ -43,6 +42,6 @@ func (f Forms) Get(formID int) (Form, error) {
 	form := Form{}
 	path := "/forms/" + fmt.Sprint(formID)
 	q := map[string]interface{}{"id": fmt.Sprint(formID)}
-	err := f.client.Get(path, q, &form)
+	err := f.Client.Get(path, q, &form)
 	return form, err
 }

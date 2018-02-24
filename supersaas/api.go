@@ -7,7 +7,12 @@ import (
 
 // API ...
 type API struct {
-	client *Client
+	Client *Client
+}
+
+// Model ...
+type Model struct {
+	Errors []interface{} `json:"errors"`
 }
 
 // FormatTime returns YYYY-MM-DD HH:MM:SS datetime string

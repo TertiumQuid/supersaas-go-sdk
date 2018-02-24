@@ -12,6 +12,7 @@ type Users struct {
 
 // User model ...
 type User struct {
+	Model
 	Address    string    `json:"address"`
 	Country    string    `json:"country"`
 	CreatedOn  time.Time `json:"created_on"`
@@ -28,8 +29,7 @@ type User struct {
 	Role       int       `json:"role"`
 	SuperField string    `json:"super_field"`
 
-	Form   *Form         `json:"form"`
-	Errors []interface{} `json:"errors"`
+	Form *Form `json:"form"`
 }
 
 // List returns a list of all users
@@ -43,20 +43,20 @@ func (u Users) List(form bool, limit int, offset int) ([]User, error) {
 	if offset > 0 {
 		q["offset"] = fmt.Sprint(offset)
 	}
-	err := u.client.Get(path, q, &users)
+	err := u.Client.Get(path, q, &users)
 	return users, err
 }
 
-// Get returns a user by id
-func (u Users) Get(userID int) (User, error) {
+// Get returns a user by string (FK) or int (SuperSaaS) user id
+func (u Users) Get(userID interface{}) (User, error) {
 	user := User{}
 	path := "/users/" + fmt.Sprint(userID)
-	err := u.client.Get(path, nil, &user)
+	err := u.Client.Get(path, nil, &user)
 	return user, err
 }
 
 // Create registers a new a user record
-func (u Users) Create(attributes map[string]interface{}, userID string, webhook bool) (User, error) {
+func (u Users) Create(attributes map[string]interface{}, userID interface{}, webhook bool) (User, error) {
 	user := User{}
 	path := "/users/"
 	if userID != "" {
@@ -67,12 +67,12 @@ func (u Users) Create(attributes map[string]interface{}, userID string, webhook 
 		q["webhook"] = "true"
 	}
 	p := map[string]interface{}{"user": attributes}
-	err := u.client.Post(path, q, p, &user)
+	err := u.Client.Post(path, q, p, &user)
 	return user, err
 }
 
 // Update modifies a user record
-func (u Users) Update(userID int64, attributes map[string]interface{}, webhook bool) (User, error) {
+func (u Users) Update(userID interface{}, attributes map[string]interface{}, webhook bool) (User, error) {
 	user := User{}
 	path := "/users/" + fmt.Sprint(userID)
 	q := map[string]interface{}{}
@@ -80,12 +80,12 @@ func (u Users) Update(userID int64, attributes map[string]interface{}, webhook b
 		q["webhook"] = "true"
 	}
 	p := map[string]interface{}{"user": attributes}
-	err := u.client.Put(path, q, p, &user)
+	err := u.Client.Put(path, q, p, &user)
 	return user, err
 }
 
 // Delete removes a user record
-func (u Users) Delete(userID string) error {
+func (u Users) Delete(userID interface{}) error {
 	path := "/users/" + fmt.Sprint(userID)
-	return u.client.Delete(path, nil, nil)
+	return u.Client.Delete(path, nil, nil)
 }

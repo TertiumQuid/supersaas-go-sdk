@@ -12,6 +12,7 @@ type Appointments struct {
 
 // Slot model ...
 type Slot struct {
+	Model
 	Count       int       `json:"count"`
 	Description string    `json:"description"`
 	Finish      time.Time `json:"finish"`
@@ -21,11 +22,11 @@ type Slot struct {
 	Title       time.Time `json:"title"`
 
 	Bookings []Appointment `json:"bookings"`
-	Errors   []interface{} `json:"errors"`
 }
 
 // Appointment model ...
 type Appointment struct {
+	Model
 	Address      string    `json:"address"`
 	Country      string    `json:"country"`
 	CreatedBy    string    `json:"created_by"`
@@ -60,9 +61,8 @@ type Appointment struct {
 	UserID       int64     `json:"user_id"`
 	Waitlisted   bool      `json:"waitlisted"`
 
-	Form   *Form         `json:"form"`
-	Slot   *Slot         `json:"slot"`
-	Errors []interface{} `json:"errors"`
+	Form *Form `json:"form"`
+	Slot *Slot `json:"slot"`
 }
 
 // Agenda returns a list of all appointments for a schedule and user
@@ -73,7 +73,7 @@ func (a Appointments) Agenda(scheduleID int64, userID int64, fromTime time.Time)
 	if !fromTime.IsZero() {
 		q["from"] = a.FormatTime(fromTime)
 	}
-	err := a.client.Get(path, q, &appointments)
+	err := a.Client.Get(path, q, &appointments)
 	return appointments, err
 }
 
@@ -85,7 +85,7 @@ func (a Appointments) AgendaSlots(scheduleID int64, userID int64, fromTime time.
 	if !fromTime.IsZero() {
 		q["from"] = a.FormatTime(fromTime)
 	}
-	err := a.client.Get(path, q, &slots)
+	err := a.Client.Get(path, q, &slots)
 	return slots, err
 }
 
@@ -106,7 +106,7 @@ func (a Appointments) Available(scheduleID int64, fromTime time.Time, lengthMinu
 	if limit > 0 {
 		q["maxresults"] = fmt.Sprint(limit)
 	}
-	err := a.client.Get(path, q, &appointments)
+	err := a.Client.Get(path, q, &appointments)
 	return appointments, err
 }
 
@@ -124,7 +124,7 @@ func (a Appointments) List(scheduleID int64, form bool, startTime time.Time, lim
 	if limit > 0 {
 		q["limit"] = fmt.Sprint(limit)
 	}
-	err := a.client.Get(path, q, &appointments)
+	err := a.Client.Get(path, q, &appointments)
 	return appointments, err
 }
 
@@ -133,7 +133,7 @@ func (a Appointments) Get(scheduleID int64, appointmentID int64) (Appointment, e
 	appointment := Appointment{}
 	path := "/bookings/" + fmt.Sprint(appointmentID)
 	q := map[string]interface{}{"schedule_id": fmt.Sprint(scheduleID)}
-	err := a.client.Get(path, q, &appointment)
+	err := a.Client.Get(path, q, &appointment)
 	return appointment, err
 }
 
@@ -168,7 +168,7 @@ func (a Appointments) Create(scheduleID int64, userID int64, attributes map[stri
 	if form {
 		p["form"] = "true"
 	}
-	err := a.client.Post(path, p, nil, &appointment)
+	err := a.Client.Post(path, p, nil, &appointment)
 	return appointment, err
 }
 
@@ -180,7 +180,7 @@ func (a Appointments) Update(scheduleID int64, appointmentID int64, attributes m
 // Delete removes an appointment record
 func (a Appointments) Delete(appointmentID int64) error {
 	path := "/bookings/" + fmt.Sprint(appointmentID)
-	return a.client.Delete(path, nil, nil)
+	return a.Client.Delete(path, nil, nil)
 }
 
 // Changes returns a list of changed appointments for a schedule
@@ -188,7 +188,7 @@ func (a Appointments) Changes(scheduleID int64, fromTime time.Time) ([]Appointme
 	var appointments []Appointment
 	path := "/changes/" + fmt.Sprint(scheduleID)
 	q := map[string]interface{}{"from": a.FormatTime(fromTime)}
-	err := a.client.Get(path, q, &appointments)
+	err := a.Client.Get(path, q, &appointments)
 	return appointments, err
 }
 
@@ -197,6 +197,6 @@ func (a Appointments) ChangesSlots(scheduleID int64, fromTime time.Time) ([]Slot
 	var slots []Slot
 	path := "/changes/" + fmt.Sprint(scheduleID)
 	q := map[string]interface{}{"from": a.FormatTime(fromTime), "slot": "true"}
-	err := a.client.Get(path, q, &slots)
+	err := a.Client.Get(path, q, &slots)
 	return slots, err
 }

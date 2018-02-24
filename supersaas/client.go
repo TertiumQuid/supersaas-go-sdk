@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"runtime"
 	"sync"
 )
@@ -28,6 +29,8 @@ type configuration struct {
 
 func defaultConfiguration() configuration {
 	c := configuration{}
+	c.AccountName = os.Getenv("SSS_API_ACCOUNT_NAME")
+	c.Password = os.Getenv("SSS_API_PASSWORD")
 	c.Host = defaultHost
 	c.DryRun = false
 	c.Verbose = false
@@ -75,6 +78,10 @@ func NewClient(accountName string, password string) *Client {
 	client := Client{configuration: defaultConfiguration(), client: http.DefaultClient}
 	client.AccountName = accountName
 	client.Password = password
+	client.Appointments = &Appointments{API{Client: &client}}
+	client.Forms = &Forms{API{Client: &client}}
+	client.Schedules = &Schedules{API{Client: &client}}
+	client.Users = &Users{API{Client: &client}}
 
 	return &client
 }
